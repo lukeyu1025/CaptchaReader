@@ -79,17 +79,23 @@ def choose_process():
 
 
 # Compute and display success rate for images in given path
-def show_rate():
+def show_rate(data_path=None):
     current_path = os.path.dirname(__file__)
     print('* Current path = ' + current_path)
-    print('Enter path of dataset')
-    while True:
+    if data_path is None:
+        print('Enter path of dataset')
+        while True:
+            try:
+                data_path = input()
+                total = len(fnmatch.filter(os.listdir(data_path), '*.png'))
+                break
+            except FileNotFoundError:
+                print('Wrong path. Try again.')
+    else:
         try:
-            data_path = input()
             total = len(fnmatch.filter(os.listdir(data_path), '*.png'))
-            break
         except FileNotFoundError:
-            print('Wrong path. Try again.')
+            raise FileNotFoundError('Dataset path not found.')
 
     order = choose_process()
 
@@ -118,6 +124,6 @@ def show_rate():
     print('\tOut of {0} captcha images, {1} were correctly read.'
           'Success Rate: {2:.2f}%'
           .format(total, correct, (correct * 100) / total))
-    print('Press any key to continue.')
-
-    input()
+    if data_path is None:
+        print('Press any key to continue.')
+        input()
