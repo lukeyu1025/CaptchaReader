@@ -1,151 +1,119 @@
-**Captchas辨識器**
+# Captcha Recognizer
 
-**Introduction:**
+## Introduction
 
-- Captcha是一種全自動的圖靈測試，可以用來區分電腦跟人類使用者。雖然有很多非文字型態的Captcha被開發出來，但市面上最廣泛被使用的還是文字形Captcha。
-- Captcha為網站和應用程序中最常見的安全機制，用來防止自動化程式或機器人的惡意操作。通常要求用戶在註冊、登錄或提交表單時輸入文字、數字或圖像中的信息，以驗證其是真正的人類使用者。
-- 隨著科技的發展，Captcha的形式不斷演進，包括圖片辨識、聲音確認以及拼圖等各種形式，這些方法都旨在提高安全性並確保網路空間的真實性和可信度。然而Captcha也可能成為用戶體驗的一種障礙，因此許多開發人員正在尋求更具包容性的解決方案，以確保安全性的同時不影響使用者的便利性和體驗。
+- A Captcha is a fully automated Turing test that distinguishes computers from humans. Although many non-text styles have been developed, text-based Captchas are still the most common.
+- Captchas are widely used on websites and applications to stop malicious automation. Users typically have to enter the characters they see in an image when registering, logging in, or submitting forms.
+- As technology evolves, Captchas come in forms such as image recognition, audio confirmation and puzzles. These methods aim to improve security but can also hinder user experience. Developers therefore look for more inclusive solutions that keep sites safe without sacrificing convenience.
 
-**動機:**
+## Motivation
 
-- 這個專題讓我有機會更深入地理解網路安全的挑戰。尤其是對於數字Captcha辨識的挑戰，這其中可能涉及到圖像處理、機器學習等技術。我希望能挑戰自我，嘗試找到突破點，提高對Captcha的辨識準確率。
+- This project gave me a deeper understanding of web security challenges. Recognizing digit Captchas involves image processing and machine learning techniques. I wanted to push myself to find breakthroughs and improve accuracy.
 
-**目的:**
+## Goals
 
-- 研究Captcha辨識能改進Captcha辨識的方法和技術。透過深入研究，我希望能夠提高對於數字Captcha的辨識準確性和效率，並嘗試解決這方面的挑戰。
-- 透過開發出一個可靠的辨識器，加強網站和應用的安全性。這有助於防止惡意機器人或自動化程式對系統進行攻擊或滲透，保護使用者和數據的安全。
-- 透過有效的Captcha辨識器，希望提高真正使用者通過驗證的便利性和流暢度。我的目標是在提高安全性的同時，減少對於正常使用者的不必要干擾和阻礙。
+- Study methods to enhance Captcha recognition. Through research I hope to increase the accuracy and efficiency of digit Captcha recognition and address related challenges.
+- Build a reliable recognizer that strengthens the security of websites and applications, protecting users and data from malicious bots.
+- Improve the user experience so legitimate visitors can pass verification smoothly while maintaining security.
 
-**文獻探討:**
+## Literature Review
 
-- 我原本只有打算直接使用tesseract做辨識，但發現此作法的準確率極低，因此開始在網上尋找不同preprocesss的方法。網上文獻有多方法可以處理影像。因此我最後選擇了二值化黑白影像，Morphological Transformation(形態學轉換)，goodFeaturesToTrack(角點檢測)，CopyMakeBorder，MedianBlur(中值濾波) 來處理影像。以下將在“你的方法”段說明使用這些方法的優點，以及同樣函示不同參數下的缺點。
+- I initially planned to rely solely on Tesseract for recognition but found the accuracy extremely low. After searching online I discovered various preprocessing techniques. I ultimately chose binarization, morphological transformation, `goodFeaturesToTrack` corner detection, `copyMakeBorder` and `medianBlur`. The next section explains the advantages of these methods and the drawbacks when parameters differ.
 
-**你的方法:**
+## Our Approach
 
-**CaptchaBreaker.py:**
+### CaptchaBreaker.py
 
-- **def menu():** Menu介面讓使用者選擇模式
+- `menu()` – displays a menu that lets you choose among:
+  - Captcha recognition
+  - Show success rate for a folder of images (run recognition on each one)
+  - Quit the program
+  
+  ![menu](https://github.com/lukeyu1025/CaptchaReader/assets/74660025/1ed8e644-86ca-4b1e-885a-39cd4f6fca0a)
 
-  Captcha辨識
+### Load.py
 
-Captcha資料集folder準確率顯示(將每一張圖做Captcha辨識)
+- `get_image(path)` – reads an image from the given path with `cv2.imread` and returns the image and file name. The label is used when evaluating datasets.
 
-Quit退出
+  ![load](https://github.com/lukeyu1025/CaptchaReader/assets/74660025/d8511582-5c29-4ac9-9ba0-110f9b9a4711)
 
-![Aspose Words a18e4c6e-9999-40b4-af90-b957a83afeea 001](https://github.com/lukeyu1025/CaptchaReader/assets/74660025/1ed8e644-86ca-4b1e-885a-39cd4f6fca0a)
+### process_manage.py
 
+- `choose_process()` – lets you set the desired preprocessing order and returns it.
+- `process(original_image, order)` – processes the original image step by step as specified by `order`, then applies Tesseract OCR to the final result. Returns the order, intermediate images and recognized text.
+- `result` class – displays the results with matplotlib. The selected order determines the plot titles and the images shown. A blank white image of the same size as the original is used as a background for the recognized text.
+- `show_rate()` – calculates the character accuracy and per-image accuracy over an entire dataset.
 
-**Load.py:**
+  ![result](https://github.com/lukeyu1025/CaptchaReader/assets/74660025/e6b996d5-cee7-4a47-9507-70c61cc174b7)
 
-- **def get_image(path):** get\_input=str(input) 輸入辨識圖片的路徑
+### Preprocessing.py
 
-  image, label=get\_image(get\_input) 使用cv2.imread(path)將圖片回傳(若路徑有 “” 在前後，也可以處理)
+- `bw(original_image)` – performs binarization and noise removal. Pixels at the four corners of the image determine whether to use adaptive thresholding or a fixed threshold.
 
-label為檔案名稱(在使用Show success rate for dataset時拿來比對正確的方式)
+  ![bw](https://github.com/lukeyu1025/CaptchaReader/assets/74660025/ed6531c8-ad9c-4f45-952a-453eb99335d4)
 
-![Aspose Words a18e4c6e-9999-40b4-af90-b957a83afeea 002](https://github.com/lukeyu1025/CaptchaReader/assets/74660025/d8511582-5c29-4ac9-9ba0-110f9b9a4711)
+- `crop_image(original_image)` – uses `goodFeaturesToTrack` to locate four corners, crops the image accordingly and pads it with `copyMakeBorder`.
 
-**Process\_manage.py:**
+  ![crop](https://github.com/lukeyu1025/CaptchaReader/assets/74660025/380df829-9371-4ac5-a672-13f35d3a096b)
 
-- **def choose\_process():** 可以決定使用不同欲處理的順序，get\_order並且 return order
+- `morph_image(original_image)` – applies closing (dilation followed by erosion) to remove small holes and dots.
 
+  ![morph](https://github.com/lukeyu1025/CaptchaReader/assets/74660025/1ee6e7eb-f065-43dd-baa5-0d9d077c4373)
 
+- `blur_image(original_image)` – blurs the image using `medianBlur` with a 3×3 kernel.
 
-- **def process(original\_image,order):** 將原圖片以及指定order輸入，以orginal\_image->images[1]->images[2]->images[3]->images[4]依序處理，並且在最後將images[4]用tesseract\_ocr辨識圖片內的文字。最後return 指定order，images[]，以及text[]
-![Aspose Words a18e4c6e-9999-40b4-af90-b957a83afeea 003](https://github.com/lukeyu1025/CaptchaReader/assets/74660025/ac857418-a30f-4f1f-b507-403f4bd8be65)
-- **class result:** 用來將前面做好的order, images,text用matplot顯示結果。for迴圈會利用self.order指定順序去決定plt的titles應該為甚麼，再將self.images存入images。最後利用empty建立與original\_images相同大小的全白圖用來當text的背景。
-- **def show\_rate():** 用來計算整個資料集執行後的字元正確率以及單張圖片正確率。
+  ![blur](https://github.com/lukeyu1025/CaptchaReader/assets/74660025/0cbf13b9-442d-4de0-8122-fc8cb77b4ee1)
 
-![Aspose Words a18e4c6e-9999-40b4-af90-b957a83afeea 004](https://github.com/lukeyu1025/CaptchaReader/assets/74660025/e6b996d5-cee7-4a47-9507-70c61cc174b7)
+- `tesseract(given_image)` – runs Tesseract on the processed image. The environment variable `TESSERACT_CMD` can specify the path to the executable; otherwise `pytesseract` searches for it automatically.
 
-- **def bw(original\_image):** 對圖片進行binarization以及noise removal。使用threshold可以將灰階影像處理成黑白影像回傳。單純使用threshold() 處理灰階影像時需要手動設定臨界值，比較適合單純的影像，遇到這種較複雜的影像，像素與像素間可能都有關聯性，因此使用adaptiveThreshold()。 adaptiveThreshold()可以根據指定大小的區域平均值自動設定灰度臨界值，有時可以產生更好的結果。因此這邊使用t=min(t1,t2,t3,t4)如果t>250則使用adaptiveThreshold()，反之則使用threshold()。
+## Experimental Results
 
-![Aspose Words a18e4c6e-9999-40b4-af90-b957a83afeea 005](https://github.com/lukeyu1025/CaptchaReader/assets/74660025/ed6531c8-ad9c-4f45-952a-453eb99335d4)
+- Processing an image with the order `1-2-3-4`:
 
-- **def crop\_image(original\_image):** 使用goodFeaturesToTrack判定四個角，並用這四格角設定圖片邊界。最後用copyMakeBorder複製一張使用新的邊界製作的圖片並回傳。
+  ![order1234](https://github.com/lukeyu1025/CaptchaReader/assets/74660025/44e54142-1f67-416c-adfd-3c59d57c153d)
 
-![Aspose Words a18e4c6e-9999-40b4-af90-b957a83afeea 006](https://github.com/lukeyu1025/CaptchaReader/assets/74660025/380df829-9371-4ac5-a672-13f35d3a096b)
+- When Tesseract fails:
 
-- **def morph\_image(original\_image):** morphologyEx使用MORPH\_CLOSE可以將圖片先膨脹(Dilation)再腐蝕(Erosion)，這樣可以消除原圖片中的空洞以及小黑點
+  ![failed](https://github.com/lukeyu1025/CaptchaReader/assets/74660025/877af4ba-68ca-42f5-9b94-94a76810ec05)
 
-![Aspose Words a18e4c6e-9999-40b4-af90-b957a83afeea 007](https://github.com/lukeyu1025/CaptchaReader/assets/74660025/1ee6e7eb-f065-43dd-baa5-0d9d077c4373)
+- When Tesseract succeeds:
 
-- **def blur\_image(original\_image):** 使用medianBlur以kernal 大小3\*3去模糊化圖片
+  ![success](https://github.com/lukeyu1025/CaptchaReader/assets/74660025/9616f533-fae7-4279-9ed7-7615839cfb53)
 
-![Aspose Words a18e4c6e-9999-40b4-af90-b957a83afeea 008](https://github.com/lukeyu1025/CaptchaReader/assets/74660025/0cbf13b9-442d-4de0-8122-fc8cb77b4ee1)
+- Accuracy after trying all orders:
 
-- **def tesseract(givin\_image):** 使用tesseract將預處理最後的圖片做辨識。
-- 可以透過環境變數 `TESSERACT_CMD` 指定 tesseract 執行檔位置，未設定時將由 `pytesseract` 自行搜尋。
+  ![accuracy](https://github.com/lukeyu1025/CaptchaReader/assets/74660025/080f3b41-bf3b-4372-9e3a-bdd5d5bfc5c4)
 
-**實驗結果:**
+Observations:
 
-- Process image 以1234 order preprocess
+- Generally, more preprocessing steps lead to higher accuracy, though exceptions exist.
+- Orders containing steps 1 or 3 alone can also achieve good accuracy.
+- Orders `1-3` and `3-1` produced very high accuracy on this dataset. This may be dataset-specific and not always applicable.
+- If time permits, using the preprocessed images for machine learning could further improve accuracy.
 
-![Aspose Words a18e4c6e-9999-40b4-af90-b957a83afeea 009](https://github.com/lukeyu1025/CaptchaReader/assets/74660025/44e54142-1f67-416c-adfd-3c59d57c153d)
+## References
 
-- Tesseract 處理失敗時
-
-![Aspose Words a18e4c6e-9999-40b4-af90-b957a83afeea 010](https://github.com/lukeyu1025/CaptchaReader/assets/74660025/877af4ba-68ca-42f5-9b94-94a76810ec05)
-
-- Tesseract 處理成功時
-
-![Aspose Words a18e4c6e-9999-40b4-af90-b957a83afeea 011](https://github.com/lukeyu1025/CaptchaReader/assets/74660025/9616f533-fae7-4279-9ed7-7615839cfb53)
-
-- 將所有order都嘗試後的準確率如下
-
-![Aspose Words a18e4c6e-9999-40b4-af90-b957a83afeea 012](https://github.com/lukeyu1025/CaptchaReader/assets/74660025/080f3b41-bf3b-4372-9e3a-bdd5d5bfc5c4)
-
-- 可以觀察到普遍越多預處理，準確率越高，但也有例外狀況。
-- 有1以及3的狀況下也會準確率比較高。
-- 有趣的是13以及31的準確率非常高，做多次實驗的結果也是如此，可能是對於這個資料集特別適合的結果，但不能保證適用於所有狀況。
-- 可以考慮時間允許的狀況下用預處理後的圖片執行機器學習，這將會有很高的機會提高準確率。
-
-**參考資料:**
-
-What is Captchas: <https://zh.wikipedia.org/zh-tw/%E9%AA%8C%E8%AF%81%E7%A0%81>
-
-可能會用到的函示庫: [Keras: Deep Learning for humans](https://keras.io/)
-
-文字辨識庫: [Home · UB-Mannheim/tesseract Wiki (github.com)](https://github.com/UB-Mannheim/tesseract/wiki)
-
-二值化黑白影像: [二值化黑白影像 - OpenCV 教學 ( Python ) | STEAM 教育學習網 (oxxostudio.tw)](https://steam.oxxostudio.tw/category/python/ai/opencv-threshold.html)
-
-Morphological Transformation(形態學轉換): [OpenCV-Python学习之路-9：Morphological Transformations(形态学转换)_morphology转换-CSDN博客](https://blog.csdn.net/qq_36560894/article/details/107667211)
-
-goodFeaturesToTrack(角點檢測): [【OpenCV3】角点检测——cv::goodFeaturesToTrack()与cv::cornerSubPix()详解-CSDN博客](https://blog.csdn.net/guduruyu/article/details/69537083)
-
-CopyMakeBorder: [OpenCV-Python: cv2.copyMakeBorder()函数详解_copymakeborder函数详解-CSDN博客](https://blog.csdn.net/qq_36560894/article/details/105416273)
-
-MedianBlur(中值濾波): [python-opencv 中值滤波{cv2.medianBlur(src, ksize)}_cv2 中值滤波-CSDN博客](https://blog.csdn.net/A_Z666666/article/details/81324288)
-
-Tesseract\_OCR: [tesseract-ocr/tesseract: Tesseract Open Source OCR Engine](https://github.com/tesseract-ocr/tesseract)
+- [What is Captcha](https://zh.wikipedia.org/zh-tw/%E9%AA%8C%E8%AF%81%E7%A0%81)
+- [Keras: Deep Learning for humans](https://keras.io/)
+- [Tesseract OCR Wiki](https://github.com/UB-Mannheim/tesseract/wiki)
+- [Binarization tutorial](https://steam.oxxostudio.tw/category/python/ai/opencv-threshold.html)
+- [Morphological transformations](https://blog.csdn.net/qq_36560894/article/details/107667211)
+- [Corner detection](https://blog.csdn.net/guduruyu/article/details/69537083)
+- [copyMakeBorder](https://blog.csdn.net/qq_36560894/article/details/105416273)
+- [Median blur](https://blog.csdn.net/A_Z666666/article/details/81324288)
+- [Tesseract OCR](https://github.com/tesseract-ocr/tesseract)
 
 ## Installation
-
-1. 建議先建立 Python 虛擬環境 (可選)。
-2. 安裝本專案所需的套件：
+1. It is recommended to create a Python virtual environment.
+2. Install the required packages:
    ```bash
    pip install -r requirements.txt
    ```
-3. 另外需安裝 [Tesseract OCR](https://github.com/tesseract-ocr/tesseract)。安裝後，如有需要，可在 `Preprocessing.py` 中修改 `pytesseract.pytesseract.tesseract_cmd` 的路徑。
+3. Install [Tesseract OCR](https://github.com/tesseract-ocr/tesseract). After installation you can modify `pytesseract.pytesseract.tesseract_cmd` in `Preprocessing.py` if necessary.
 
 ## Usage
-
-執行主程式並依照畫面指示操作：
+Run the main program and follow the prompts:
 
 ```bash
 python CaptchaBreaker.py
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
