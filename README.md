@@ -110,6 +110,9 @@ Observations:
    pip install -r requirements.txt
    ```
 3. Install [Tesseract OCR](https://github.com/tesseract-ocr/tesseract). After installation you can modify `pytesseract.pytesseract.tesseract_cmd` in `Preprocessing.py` if necessary.
+4. The `images/` directory with sample captchas is optional. You can download it
+   later by running `scripts/download_images.sh` or from the project's release
+   page.
 
 ## Usage
 Run the main program and follow the prompts:
