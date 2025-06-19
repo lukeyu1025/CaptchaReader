@@ -22,22 +22,35 @@ def bw(original_image):
 
 # Image Cropping
 def crop_image(original_image):
-    cut = 5     # Boundary of image that is definitely not text
+    cut = 5  # Boundary of image that is definitely not text
     x_list, y_list = [], []
     corners = cv2.goodFeaturesToTrack(original_image, 200, 0.01, 6)
+
+    # goodFeaturesToTrack may return None when no corners are found. In this
+    # situation we simply return the original image instead of raising an
+    # exception so that further processing can continue.
+    if corners is None:
+        return original_image
+
     corners = np.int0(corners)
     for i in corners:
         x, y = i.ravel()
         if x > cut and y > cut:
             x_list.append(x)
             y_list.append(y)
+
+    # When no valid corners are detected after filtering, skip cropping.
+    if not x_list or not y_list:
+        return original_image
+
     xl = min(x_list)
     xr = max(x_list)
     yt = min(y_list)
     yb = max(y_list)
 
-    cr_img = cv2.copyMakeBorder(original_image[yt:yb, xl:xr],
-                                5, 5, 5, 5, cv2.BORDER_CONSTANT, value=255)
+    cr_img = cv2.copyMakeBorder(
+        original_image[yt:yb, xl:xr], 5, 5, 5, 5, cv2.BORDER_CONSTANT, value=255
+    )
     return cr_img
 
 
