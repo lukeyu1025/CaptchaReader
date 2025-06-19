@@ -1,7 +1,26 @@
 import cv2
 
-# Get image from external file(path)
+
 def get_image(path):
+    """Load an image from disk and extract its label.
+
+    Parameters
+    ----------
+    path : str
+        Path to the image file.
+
+    Returns
+    -------
+    tuple[numpy.ndarray, str]
+        The grayscale image and the file name (without extension) as the
+        associated label.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the image cannot be loaded from ``path``.
+    """
+
     # Remove quotes from the provided path if present
     if path.startswith('"') and path.endswith('"'):
         path = path[1:-1]

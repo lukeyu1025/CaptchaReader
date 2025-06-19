@@ -3,6 +3,16 @@ import cv2
 from load import get_image
 
 def menu():
+    """Prompt the user for an action and return the chosen option.
+
+    Returns
+    -------
+    int
+        The selected menu item where ``1`` preprocesses an image,
+        ``2`` shows the dataset success rate and ``3`` quits the
+        application.
+    """
+
     print('Choose operation')
     print('1. Preprocess image')
     print('2. Show success rate for dataset')
