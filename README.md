@@ -119,6 +119,23 @@ MedianBlur(中值濾波): [python-opencv 中值滤波{cv2.medianBlur(src, ksize)
 
 Tesseract\_OCR: [tesseract-ocr/tesseract: Tesseract Open Source OCR Engine](https://github.com/tesseract-ocr/tesseract)
 
+## Installation
+
+1. 建議先建立 Python 虛擬環境 (可選)。
+2. 安裝本專案所需的套件：
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. 另外需安裝 [Tesseract OCR](https://github.com/tesseract-ocr/tesseract)。安裝後，如有需要，可在 `Preprocessing.py` 中修改 `pytesseract.pytesseract.tesseract_cmd` 的路徑。
+
+## Usage
+
+執行主程式並依照畫面指示操作：
+
+```bash
+python CaptchaBreaker.py
+```
+
 
 
 
