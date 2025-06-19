@@ -1,6 +1,7 @@
 import numpy as np
 import pytesseract
 import cv2
+import os
 
 
 # Binarisation & Noise Removal
@@ -59,7 +60,9 @@ def return_image(original_image):
 
 
 def tesseract(given_image):
-    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract'
+    cmd = os.getenv('TESSERACT_CMD')
+    if cmd:
+        pytesseract.pytesseract.tesseract_cmd = cmd
     return pytesseract.image_to_string(given_image, lang='eng')
 
 
