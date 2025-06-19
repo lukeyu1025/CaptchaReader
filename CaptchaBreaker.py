@@ -26,13 +26,12 @@ if __name__ == '__main__':
             get_input = str(input()) #input of path
             try:
                 image, label = get_image(get_input)  # use path to get image
-                if image is not None:
-                    sel_order = process_manage.choose_process()
-                    res = process_manage.process(image, sel_order)
-                    res.show()
-                    print(label)
-                else:
-                    print('Invalid path or image file. Please try again.\n')
+                sel_order = process_manage.choose_process()
+                res = process_manage.process(image, sel_order)
+                res.show()
+                print(label)
+            except FileNotFoundError as e:
+                print(e)
             except cv2.error:
                 print('Error reading the image. Please provide a valid image file.\n')
         elif choice == 2:
