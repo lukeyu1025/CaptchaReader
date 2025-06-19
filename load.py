@@ -1,8 +1,26 @@
+"""Utility helpers for loading images."""
+
 import cv2
 
-# Get image from external file(path)
+
 def get_image(path):
-    # Remove quotes from the provided path if present
+    """Load an image in grayscale and derive its label from the filename.
+
+    Parameters
+    ----------
+    path : str
+        Path to the image file.
+
+    Returns
+    -------
+    tuple[numpy.ndarray, str]
+        The grayscale image and the file stem used as its label.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the image cannot be read from ``path``.
+    """
     if path.startswith('"') and path.endswith('"'):
         path = path[1:-1]
 
