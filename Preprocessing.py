@@ -33,7 +33,7 @@ def crop_image(original_image):
     if corners is None:
         return original_image
 
-    corners = np.int0(corners)
+    corners = corners.astype(int)
     for i in corners:
         x, y = i.ravel()
         if x > cut and y > cut:
