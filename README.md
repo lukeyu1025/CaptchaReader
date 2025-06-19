@@ -75,6 +75,7 @@ label為檔案名稱(在使用Show success rate for dataset時拿來比對正確
 ![Aspose Words a18e4c6e-9999-40b4-af90-b957a83afeea 008](https://github.com/lukeyu1025/CaptchaReader/assets/74660025/0cbf13b9-442d-4de0-8122-fc8cb77b4ee1)
 
 - **def tesseract(givin\_image):** 使用tesseract將預處理最後的圖片做辨識。
+- 可以透過環境變數 `TESSERACT_CMD` 指定 tesseract 執行檔位置，未設定時將由 `pytesseract` 自行搜尋。
 
 **實驗結果:**
 
