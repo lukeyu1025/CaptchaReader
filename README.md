@@ -112,8 +112,17 @@ Observations:
 3. Install [Tesseract OCR](https://github.com/tesseract-ocr/tesseract). After installation you can modify `pytesseract.pytesseract.tesseract_cmd` in `Preprocessing.py` if necessary.
 
 ## Usage
-Run the main program and follow the prompts:
+You can now run the program non–interactively using command line flags or fall back
+to the original prompts.
 
+Process a single image:
 ```bash
-python CaptchaBreaker.py
+python CaptchaBreaker.py --image path/to/captcha.png
 ```
+
+Evaluate all images in a folder:
+```bash
+python CaptchaBreaker.py --dataset path/to/folder
+```
+
+If no arguments are provided the interactive menu is displayed as before.
