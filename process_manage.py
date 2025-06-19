@@ -1,6 +1,9 @@
 import numpy as np
 from matplotlib import pyplot as plt
 import fnmatch, os, glob
+import logging
+
+logging.basicConfig(level=logging.ERROR)
 
 import Preprocessing
 from load import get_image
@@ -101,8 +104,10 @@ def show_rate():
             for i in range(min(len(processed_image.text), len(label))):
                 if processed_image.text[i] == label[i]:
                     letter_correct += 1
-        except:
-            print('Error occured in processing image ', label)
+        except Exception as e:
+            logging.error('Error occured in processing image %s: %s', label, e)
+            print('\r{0: .2f}% complete..'.format((count*100) / total), end='')
+            continue
         print('\r{0: .2f}% complete..'.format((count*100) / total), end='')
 
     print('')
