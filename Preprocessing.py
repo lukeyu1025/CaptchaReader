@@ -4,8 +4,22 @@ import cv2
 import os
 
 
-# Binarisation & Noise Removal
+"""Image preprocessing utilities."""
+
+
 def bw(original_image):
+    """Binarize the image and remove noise.
+
+    Parameters
+    ----------
+    original_image : numpy.ndarray
+        Grayscale image to process.
+
+    Returns
+    -------
+    numpy.ndarray
+        Thresholded binary image where pixels are either 0 or 255.
+    """
     t1 = original_image[0][0]
     t2 = original_image[0][original_image.shape[1]-1]
     t3 = original_image[original_image.shape[0]-1][0]
@@ -21,8 +35,20 @@ def bw(original_image):
     return bw_img
 
 
-# Image Cropping
 def crop_image(original_image):
+    """Crop away whitespace using corner detection.
+
+    Parameters
+    ----------
+    original_image : numpy.ndarray
+        Image to crop.
+
+    Returns
+    -------
+    numpy.ndarray
+        Cropped image padded with a 5 pixel border. If no corners are
+        detected the original image is returned.
+    """
     cut = 5  # Boundary of image that is definitely not text
     x_list, y_list = [], []
     corners = cv2.goodFeaturesToTrack(original_image, 200, 0.01, 6)
@@ -33,7 +59,7 @@ def crop_image(original_image):
     if corners is None:
         return original_image
 
-    corners = np.int0(corners)
+    corners = corners.astype(int)
     for i in corners:
         x, y = i.ravel()
         if x > cut and y > cut:
@@ -57,6 +83,7 @@ def crop_image(original_image):
 
 # Closing (Dilation -> Erosion)
 def morph_image(original_image):
+    """Apply a closing operation to remove small holes."""
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 4))
     mor_img = cv2.morphologyEx(original_image, cv2.MORPH_CLOSE, kernel)
     return mor_img
@@ -64,15 +91,32 @@ def morph_image(original_image):
 
 # Blur image
 def blur_image(original_image):
+    """Blur the image with a 3×3 median filter."""
     return cv2.medianBlur(original_image, 3)
 
 
 # Return original image
 def return_image(original_image):
+    """Return the image unchanged."""
     return original_image
 
 
 def tesseract(given_image):
+    """Run Tesseract OCR on the supplied image.
+
+    The environment variable ``TESSERACT_CMD`` can be used to override the
+    tesseract executable path.
+
+    Parameters
+    ----------
+    given_image : numpy.ndarray
+        Image to recognise.
+
+    Returns
+    -------
+    str
+        The text recognised by Tesseract.
+    """
     cmd = os.getenv('TESSERACT_CMD')
     if cmd:
         pytesseract.pytesseract.tesseract_cmd = cmd

@@ -1,6 +1,10 @@
+"""High level processing workflow for CAPTCHA images."""
+
 import numpy as np
 from matplotlib import pyplot as plt
-import fnmatch, os, glob
+import fnmatch
+import os
+import glob
 import logging
 
 logging.basicConfig(level=logging.ERROR)
@@ -10,12 +14,16 @@ from load import get_image
 
 
 class Result:
+    """Container holding processed images and recognised text."""
+
     def __init__(self, order, images, text):
+        """Store the processing order, intermediate images and OCR result."""
         self.order = order
         self.images = images
         self.text = text
 
     def show(self):
+        """Display the processing pipeline using ``matplotlib``."""
         titles = ['Original']
         images = [self.images[0]]
         for i in range(4):
@@ -52,6 +60,7 @@ class Result:
 
 # define preprocessing
 def process(original_image, order):
+    """Run the image through four preprocessing steps and OCR."""
     images = [original_image]
     images.append(order[0](original_image))
     images.append(order[1](images[1]))
@@ -62,36 +71,59 @@ def process(original_image, order):
 
 
 # Select processes
-def choose_process():
+def choose_process(order_str=None):
+    """Return a list of processing functions.
+
+    Parameters
+    ----------
+    order_str : str, optional
+        String of four digits specifying the order. When ``None`` the user
+        is prompted interactively.
+    """
     steps = [Preprocessing.bw, Preprocessing.crop_image,
              Preprocessing.morph_image, Preprocessing.blur_image]
     order = []
     print('Choose order of processing')
     print('1. Binarisation  2.Cropping  3.Closing   4.Blurring')
 
-    get_order = input()
+    get_order = order_str or input()
     for i in range(4):
         try:
             order.append(steps[int(get_order[i]) - 1])
-        except IndexError:
+        except (IndexError, ValueError):
             order.append(Preprocessing.return_image)
     return order
 
 
 # Compute and display success rate for images in given path
-def show_rate():
+def show_rate(data_path=None, order_str=None, pause=True):
+    """Calculate OCR accuracy for all PNG images in a directory.
+
+    Parameters
+    ----------
+    data_path : str, optional
+        Folder containing labelled captcha images. When ``None`` the user is
+        prompted.
+    order_str : str, optional
+        Four-digit string specifying the preprocessing order.
+    pause : bool, default ``True``
+        Wait for input before returning to allow the user to read the results.
+    """
     current_path = os.path.dirname(__file__)
     print('* Current path = ' + current_path)
-    print('Enter path of dataset')
-    while True:
-        try:
-            data_path = input()
-            total = len(fnmatch.filter(os.listdir(data_path), '*.png'))
-            break
-        except FileNotFoundError:
-            print('Wrong path. Try again.')
+    if data_path is None:
+        print('Enter path of dataset')
+        while True:
+            try:
+                data_path = input()
+                total = len(fnmatch.filter(os.listdir(data_path), '*.png'))
+                break
+            except FileNotFoundError:
+                print('Wrong path. Try again.')
+    else:
+        total = len(fnmatch.filter(os.listdir(data_path), '*.png'))
 
-    order = choose_process()
+    order = choose_process(order_str)
 
     count = letter_correct = correct = 0
     for f in glob.glob(data_path + '/*.png'):
@@ -120,4 +152,5 @@ def show_rate():
           .format(total, correct, (correct * 100) / total))
     print('Press any key to continue.')
 
-    input()
+    if pause:
+        input()
